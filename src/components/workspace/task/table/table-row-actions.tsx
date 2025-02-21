@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Row } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { Edit, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +8,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/resuable/confirm-dialog";
@@ -17,6 +16,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import useWorkspaceId from "@/hooks/use-workspace-id";
 import { deleteTaskMutationFn } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
+import EditTaskDialog from "../edit-task-dialog";
 
 interface DataTableRowActionsProps {
   row: Row<TaskType>;
@@ -24,6 +24,8 @@ interface DataTableRowActionsProps {
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const [openDeleteDialog, setOpenDialog] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false); // Control the edit dialog open state
+
   const queryClient = useQueryClient();
   const workspaceId = useWorkspaceId();
 
@@ -51,6 +53,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             variant: "success",
           });
           setTimeout(() => setOpenDialog(false), 100);
+          window.location.reload();
         },
         onError: (error) => {
           toast({
@@ -76,7 +79,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[160px]">
-          <DropdownMenuItem className="cursor-pointer">
+          <DropdownMenuItem
+            onClick={() => setIsEditDialogOpen(true)} // Trigger edit dialog on click
+            className="cursor-pointer"
+          >
             Edit Task
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -85,10 +91,16 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             onClick={() => setOpenDialog(true)}
           >
             Delete Task
-            <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {/* Edit task dialog, managed via state */}
+      <EditTaskDialog
+        task={row.original}
+        isOpen={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)} // Close dialog on action
+      />
 
       <ConfirmDialog
         isOpen={openDeleteDialog}
