@@ -83,6 +83,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
             onClick={() => setIsEditDialogOpen(true)} // Trigger edit dialog on click
             className="cursor-pointer"
           >
+            <Edit />
             Edit Task
           </DropdownMenuItem>
           <DropdownMenuSeparator />
